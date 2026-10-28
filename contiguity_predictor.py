@@ -117,10 +117,14 @@ def bestk(L, rho, k_values, mu_values):
     """
     L, candidates = _candidates(L, k_values, mu_values)
     rho = _finite_number(rho, "rho")
-    return max(
-        candidates,
-        key=lambda pair: (_zval(L, pair[0], rho, pair[1]), -pair[0]),
-    )[0]
+    best_k = candidates[0][0]
+    best_length = -math.inf
+    for k, mu in candidates:
+        length = _zval(L, k, rho, mu)
+        if length > best_length or (length == best_length and k < best_k):
+            best_k = k
+            best_length = length
+    return best_k
 
 
 def _fixed_k_saturation(L, k, mu, reference_mu, sigma):
