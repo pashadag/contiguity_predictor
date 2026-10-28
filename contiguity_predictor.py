@@ -180,8 +180,11 @@ def saturation(L, k_values, mu_values, sigma):
     if sigma >= 1.0:
         raise ValueError("sigma must be strictly between 0 and 1")
     reference_mu = min(mu for _, mu in candidates)
-    return min(_fixed_k_saturation(L, k, mu, reference_mu, sigma)
-               for k, mu in candidates)
+    rho_values = []
+    for k, mu in candidates:
+        rho_k = _fixed_k_saturation(L, k, mu, reference_mu, sigma)
+        rho_values.append(rho_k)
+    return min(rho_values)
 
 
 def _format_result(value):
