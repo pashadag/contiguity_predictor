@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Predict assembly contiguity (Python standard library only).
+"""Predict assembly contiguity using SciPy.
 
 Based on the manuscript "Theoretical prediction of assembly contiguity".
 
@@ -27,6 +27,9 @@ Use --help after any command for its arguments; --L is required.
 import argparse
 import math
 from numbers import Integral
+
+from scipy.optimize import brentq
+from scipy.special import lambertw
 
 
 __all__ = ["zval", "bestk", "saturation"]
@@ -136,37 +139,28 @@ def _fixed_k_saturation(L, k, mu, reference_mu, sigma):
         return 0.0
 
     ell = L - k + 1
-    # Lemma 2: A = exp(-mu * L) / (1 - sigma * mu / reference_mu),
-    # B = (A - exp(-mu * ell)) / mu, with A > 1 and B > 0 here.
-    fraction = sigma / ratio
-    log_delta = (math.log1p(-fraction) if fraction < 1.0
-                 else math.log(ratio - sigma) - math.log(ratio))
-    log_a = -mu * L - log_delta
-    if log_a <= 0.0:
-        return 0.0
-    log_d = (math.log(-math.expm1(-mu * ell - log_a))
-             - math.log(mu) - math.log(ell))  # d = B / (ell * A)
+    # Lemma 2: rho* = -W_{-1}(-(ell / B) * exp(-ell * A / B)) / ell - A / B.
+    A = math.exp(-mu * L) * ratio / (ratio - sigma)
+    B = (A - math.exp(-mu * ell)) / mu
+    if B > 0.0:
+        argument = -(ell / B) * math.exp(-ell * A / B)
+        # Avoid the branch point, where Lambert W can lose accuracy.
+        if -1.0 / math.e + 1e-6 < argument < 0.0:
+            rho_star = -lambertw(argument, k=-1).real / ell - A / B
+            if math.isfinite(rho_star) and rho_star > 0.0:
+                return float(rho_star)
 
-    # Evaluate the W_{-1} expression through its equivalent equation
-    # y = log(A) + log(1 + d * y), y = ell * rho.
-    # Its unique positive root selects the -1 branch. Working with logarithms
-    # avoids an underflowing Lambert-W argument and requires no SciPy install.
-    def residual(y):
-        return y - log_a - _softplus(log_d + math.log(y))
+    # Fall back to SciPy's root finder for numerically delicate cases.
+    target = sigma / ratio
 
-    low = log_a
-    high = max(1.0, log_a, 2.0 * log_d)
-    while residual(high) < 0.0:
-        high *= 2.0
-    for _ in range(1100):
-        midpoint = low + (high - low) / 2.0
-        if midpoint == low or midpoint == high or high - low <= 1e-12 * high:
-            break
-        if residual(midpoint) >= 0.0:
-            high = midpoint
-        else:
-            low = midpoint
-    return high / ell
+    def residual(rho):
+        return mu * _zval(L, k, rho, mu) / target - 1.0
+
+    upper = 1.0 / ell
+    while residual(upper) < 0.0:
+        upper *= 2.0
+    return float(brentq(residual, 0.0, upper,
+                        xtol=math.nextafter(0.0, 1.0), rtol=1e-12))
 
 
 def saturation(L, k_values, mu_values, sigma):

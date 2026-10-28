@@ -5,7 +5,12 @@ candidate k, and computes the read-arrival rate needed to reach a target fractio
 of the limiting mean length. It implements Formula 3, Equation 1, and Lemma 2 in
 the manuscript *Theoretical prediction of assembly contiguity*.
 
-Requires Python 3 and uses only the standard library. No packages need installing.
+Requires Python 3 and SciPy. Install SciPy with:
+
+```bash
+python3 -m pip install scipy
+```
+
 Run the examples below from the directory containing `contiguity_predictor.py`
 and this README (the GitHub repository root).
 
