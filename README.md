@@ -21,12 +21,6 @@ and this README (the GitHub repository root).
 
 For each k, `mu_k` is the reciprocal of the mean reftig length at that k.
 For example, a mean reftig length of 1000 bases corresponds to `mu_k = 1e-03`.
-The adjusted read length used by the formula is `ell = L - k + 1`.
-
-Convert depth of coverage to a read-arrival rate using `rho = Cov / L`.
-For example, coverage 30 with `L = 150` gives `rho = 0.20`.
-Convert a returned saturation rate back to depth of coverage using
-`Cov_star = rho_star * L`.
 
 ## Command-line usage
 
@@ -50,8 +44,6 @@ Output, in bases:
 ```
 
 `--k`, `--rho`, and `--mu` are required. `--L` is optional.
-At `rho = 0`, the function returns the continuous limit
-`(1 - exp(-mu * L)) / mu`.
 
 ### Select the best k: `bestk`
 
@@ -96,12 +88,9 @@ The target mean length is `sigma / min(mu_values)`. For the full model sequence
 values, the target is relative to the best limiting mean within that subset.
 
 The result is the smallest rate at which at least one candidate reaches the
-target. Candidates that cannot reach the target at any finite rate are skipped.
-The function returns zero if the zero-rate limit already meets the target.
-The implementation evaluates an equivalent logarithmic form of Lemma 2's
-Lambert-W expression, without requiring SciPy.
+target.
 
-### Help and output precision
+### Help
 
 ```bash
 python3 contiguity_predictor.py --help
@@ -109,11 +98,6 @@ python3 contiguity_predictor.py zval --help
 python3 contiguity_predictor.py bestk --help
 python3 contiguity_predictor.py saturation --help
 ```
-
-`bestk` prints an integer. The other commands print results with two decimal
-places, using scientific notation for nonzero magnitudes below `0.01`.
-Use the Python functions when retaining full precision for subsequent
-calculations, such as converting the saturation rate to coverage.
 
 ## Python usage
 
@@ -123,28 +107,15 @@ Import the functions from the directory containing the script:
 from contiguity_predictor import zval, bestk, saturation
 
 L = 150
-rho = 30 / L
+rho = 0.20
 k_values = [21, 31, 51]
 mu_values = [3e-03, 2e-03, 1e-03]
 
 mean_length = zval(L, 31, rho, 2e-03)
 k_star = bestk(L, rho, k_values, mu_values)
 rho_star = saturation(L, k_values, mu_values, 0.95)
-coverage_star = rho_star * L
 
 print(f"Predicted mean length: {mean_length:.2f} bases")
 print(f"Best k: {k_star}")
-print(f"Saturation coverage: {coverage_star:.2f}")
+print(f"Saturation rate: {rho_star:.2f}")
 ```
-
-The public signatures are:
-
-```python
-zval(L, k, rho, mu)                         # Returns a float: mean length in bases.
-bestk(L, rho, k_values, mu_values)           # Returns an int: the selected k.
-saturation(L, k_values, mu_values, sigma)    # Returns a float: saturation rate rho*.
-```
-
-All arguments, including `L`, are required in the Python API. Candidate sequences
-are paired by position, as on the command line. The functions return unrounded
-values and raise `ValueError` for invalid numeric values or candidate lists.
