@@ -14,6 +14,18 @@ python3 -m pip install scipy
 Run the examples below from the directory containing `contiguity_predictor.py`
 and this README (the GitHub repository root).
 
+## Verify the installation
+
+Run:
+
+```bash
+bash test.sh
+```
+
+This checks all three commands using hardcoded P. brunnea rates.
+Each command should report `PASS`.
+To select a different Python interpreter, use `PYTHON=/path/to/python bash test.sh`.
+
 ## Parameters
 
 | Parameter | Meaning | Allowed values |
