@@ -16,7 +16,7 @@ and this README (the GitHub repository root).
 | `L` / `--L` | Read length in bases | Integer greater than 1; required |
 | `k` / `--k` | k-mer length, or a list of candidate lengths | Distinct integers from 1 through `L`, inclusive |
 | `rho` / `--rho` | Read-arrival rate per base | Real number greater than 0 |
-| `mu` / `--mu` | k-reftig break rate per base, or corresponding rates for candidate k values | Real numbers greater than 0 |
+| `mu` / `--mu` | k-reftig break rate per base, or corresponding rates for candidate k values | Real numbers greater than 0; non-increasing as k increases for `bestk` and `saturation` |
 | `sigma` / `--sigma` | Target fraction of the limiting mean length | Real number strictly between 0 and 1 |
 
 ## Command-line usage
@@ -56,7 +56,8 @@ Output:
 `--L`, `--rho`, `--k`, and `--mu` are required. Supply space-separated lists for `--k`
 and `--mu`; the lists must be nonempty and equally long. Entries are paired by
 position: the example pairs k values 21, 31, and 51 with their respective rates.
-Candidates may appear in any order. Ties return the smallest k.
+Candidates may appear in any order. Their corresponding `mu_k` values must be
+non-increasing as k increases; equal values are allowed. Ties return the smallest k.
 
 ### Find the saturation rate: `saturation`
 

@@ -65,7 +65,11 @@ def _candidates(L, k_values, mu_values):
     if len(set(ks)) != len(ks):
         raise ValueError("candidate k values must be distinct")
     mus = [_finite_number(mu, "mu_k") for mu in mus]
-    return L, list(zip(ks, mus))
+    candidates = list(zip(ks, mus))
+    ordered = sorted(candidates)
+    if any(left[1] < right[1] for left, right in zip(ordered, ordered[1:])):
+        raise ValueError("mu_k values must be non-increasing as k increases")
+    return L, candidates
 
 
 def _softplus(x):
@@ -107,7 +111,8 @@ def bestk(L, rho, k_values, mu_values):
 
     Candidate sequences must be nonempty, equally long, and paired by position.
     k values must be distinct integers in [1, L], and break rates positive and
-    finite. Candidates may be supplied in any order. Ties return the smallest k.
+    finite. Break rates must be non-increasing as k increases; equal rates are
+    allowed. Candidates may be supplied in any order. Ties return the smallest k.
     rho must be positive and finite. Invalid inputs raise ValueError.
     """
     L, candidates = _candidates(L, k_values, mu_values)
@@ -206,7 +211,7 @@ def _main(argv=None):
         command.add_argument("--k", type=int, nargs="+", required=True,
                              help="space-separated candidate k values")
         command.add_argument("--mu", type=float, nargs="+", required=True,
-                             help="space-separated corresponding positive mu_k values")
+                             help="space-separated positive mu_k values, non-increasing as k increases")
     s_parser.add_argument("--sigma", type=float, required=True,
                          help="target fraction, strictly between 0 and 1")
     args = parser.parse_args(argv)
