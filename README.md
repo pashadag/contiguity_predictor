@@ -13,20 +13,13 @@ and this README (the GitHub repository root).
 
 | Parameter | Meaning | Allowed values |
 | --- | --- | --- |
-| `L` / `--L` | Read length in bases | Integer greater than 1; CLI default: 150 |
+| `L` / `--L` | Read length in bases | Integer greater than 1; required |
 | `k` / `--k` | k-mer length, or a list of candidate lengths | Distinct integers from 1 through `L`, inclusive |
-| `rho` / `--rho` | Read-arrival rate per base | Finite, nonnegative real number |
-| `mu` / `--mu` | k-reftig break rate per base, or corresponding rates for candidate k values | Finite, positive real numbers |
+| `rho` / `--rho` | Read-arrival rate per base | Real number greater than 0 |
+| `mu` / `--mu` | k-reftig break rate per base, or corresponding rates for candidate k values | Real numbers greater than 0 |
 | `sigma` / `--sigma` | Target fraction of the limiting mean length | Real number strictly between 0 and 1 |
 
-For each k, `mu_k` is the reciprocal of the mean reftig length at that k.
-For example, a mean reftig length of 1000 bases corresponds to `mu_k = 1e-03`.
-
 ## Command-line usage
-
-Place `zval`, `bestk`, or `saturation` immediately after the script name.
-Each command prints one result to standard output. Invalid arguments produce an
-error on standard error and a nonzero exit status.
 
 ### Predict mean contig length: `zval`
 
@@ -43,7 +36,7 @@ Output, in bases:
 1000.00
 ```
 
-`--k`, `--rho`, and `--mu` are required. `--L` is optional.
+`--L`, `--k`, `--rho`, and `--mu` are required.
 
 ### Select the best k: `bestk`
 
@@ -60,7 +53,7 @@ Output:
 51
 ```
 
-`--rho`, `--k`, and `--mu` are required. Supply space-separated lists for `--k`
+`--L`, `--rho`, `--k`, and `--mu` are required. Supply space-separated lists for `--k`
 and `--mu`; the lists must be nonempty and equally long. Entries are paired by
 position: the example pairs k values 21, 31, and 51 with their respective rates.
 Candidates may appear in any order. Ties return the smallest k.
@@ -80,7 +73,7 @@ Output, as a read-arrival rate:
 0.07
 ```
 
-`--k`, `--mu`, and `--sigma` are required. The candidate-list rules are the same
+`--L`, `--k`, `--mu`, and `--sigma` are required. The candidate-list rules are the same
 as for `bestk`.
 
 The target mean length is `sigma / min(mu_values)`. For the full model sequence
@@ -89,15 +82,6 @@ values, the target is relative to the best limiting mean within that subset.
 
 The result is the smallest rate at which at least one candidate reaches the
 target.
-
-### Help
-
-```bash
-python3 contiguity_predictor.py --help
-python3 contiguity_predictor.py zval --help
-python3 contiguity_predictor.py bestk --help
-python3 contiguity_predictor.py saturation --help
-```
 
 ## Python usage
 

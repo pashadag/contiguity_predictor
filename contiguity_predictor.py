@@ -17,11 +17,11 @@ full precision; command-line results use at most two decimal places.
 
 Examples:
     python3 contiguity_predictor.py zval --L 150 --k 31 --rho 0.20 --mu 0.001
-    python3 contiguity_predictor.py bestk --rho 0.20 --k 21 31 51 --mu 0.003 0.002 0.001
-    python3 contiguity_predictor.py saturation --k 21 31 51 --mu 0.003 0.002 0.001 --sigma 0.95
+    python3 contiguity_predictor.py bestk --L 150 --rho 0.20 --k 21 31 51 --mu 0.003 0.002 0.001
+    python3 contiguity_predictor.py saturation --L 150 --k 21 31 51 --mu 0.003 0.002 0.001 --sigma 0.95
 
 The command immediately following the script name selects the function.
-Use --help after any command for its arguments; --L defaults to 150.
+Use --help after any command for its arguments; --L is required.
 """
 
 import argparse
@@ -44,16 +44,15 @@ def _candidate_k(k, L):
     return int(k)
 
 
-def _finite_number(value, name, allow_zero=False):
+def _finite_number(value, name):
     try:
         result = float(value)
     except (TypeError, ValueError, OverflowError):
         raise ValueError(f"{name} must be a finite real number") from None
     if isinstance(value, bool) or not math.isfinite(result):
         raise ValueError(f"{name} must be a finite real number")
-    if result < 0 or (result == 0 and not allow_zero):
-        bound = "nonnegative" if allow_zero else "positive"
-        raise ValueError(f"{name} must be {bound}")
+    if result <= 0:
+        raise ValueError(f"{name} must be positive")
     return result
 
 
@@ -93,13 +92,12 @@ def zval(L, k, rho, mu):
     """Return Formula 3's expected unitig length for ell = L - k + 1.
 
     L must be an integer greater than 1, k an integer in [1, L], rho a
-    finite nonnegative read-arrival rate, and mu a finite positive break rate.
-    rho = 0 returns the continuous limit (1 - exp(-mu * L)) / mu.
+    finite positive read-arrival rate, and mu a finite positive break rate.
     Invalid inputs raise ValueError.
     """
     L = _read_length(L)
     k = _candidate_k(k, L)
-    rho = _finite_number(rho, "rho", allow_zero=True)
+    rho = _finite_number(rho, "rho")
     mu = _finite_number(mu, "mu")
     return _zval(L, k, rho, mu)
 
@@ -110,10 +108,10 @@ def bestk(L, rho, k_values, mu_values):
     Candidate sequences must be nonempty, equally long, and paired by position.
     k values must be distinct integers in [1, L], and break rates positive and
     finite. Candidates may be supplied in any order. Ties return the smallest k.
-    rho = 0 uses the continuous limit. Invalid inputs raise ValueError.
+    rho must be positive and finite. Invalid inputs raise ValueError.
     """
     L, candidates = _candidates(L, k_values, mu_values)
-    rho = _finite_number(rho, "rho", allow_zero=True)
+    rho = _finite_number(rho, "rho")
     return max(
         candidates,
         key=lambda pair: (_zval(L, pair[0], rho, pair[1]), -pair[0]),
@@ -192,23 +190,23 @@ def _format_result(value):
 def _main(argv=None):
     parser = argparse.ArgumentParser(
         description="Predict assembly contiguity; rho = Cov / L.",
-        epilog="Example: %(prog)s zval --k 31 --rho 0.20 --mu 0.001",
+        epilog="Example: %(prog)s zval --L 150 --k 31 --rho 0.20 --mu 0.001",
     )
     commands = parser.add_subparsers(dest="command", required=True)
     z_parser = commands.add_parser("zval", help="expected unitig length (Formula 3)")
     k_parser = commands.add_parser("bestk", help="maximizing candidate k (Equation 1)")
     s_parser = commands.add_parser("saturation", help="saturating rho* (Lemma 2)")
     for command in (z_parser, k_parser, s_parser):
-        command.add_argument("--L", type=int, default=150, help="read length (default: 150)")
+        command.add_argument("--L", type=int, required=True, help="read length")
     z_parser.add_argument("--k", type=int, required=True, help="k-mer length")
-    z_parser.add_argument("--rho", type=float, required=True, help="read-arrival rate")
-    z_parser.add_argument("--mu", type=float, required=True, help="k-reftig break rate")
-    k_parser.add_argument("--rho", type=float, required=True, help="read-arrival rate")
+    z_parser.add_argument("--rho", type=float, required=True, help="positive read-arrival rate")
+    z_parser.add_argument("--mu", type=float, required=True, help="positive k-reftig break rate")
+    k_parser.add_argument("--rho", type=float, required=True, help="positive read-arrival rate")
     for command in (k_parser, s_parser):
         command.add_argument("--k", type=int, nargs="+", required=True,
                              help="space-separated candidate k values")
         command.add_argument("--mu", type=float, nargs="+", required=True,
-                             help="space-separated corresponding mu_k values")
+                             help="space-separated corresponding positive mu_k values")
     s_parser.add_argument("--sigma", type=float, required=True,
                          help="target fraction, strictly between 0 and 1")
     args = parser.parse_args(argv)
