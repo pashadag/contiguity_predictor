@@ -1,0 +1,19 @@
+Assembly Accession,Species Name,Seq Length,Contig N50,n. chr,n. contigs,Batch,reftigs avail
+GCF_044360475.1,Archangium minus,13217192,13217192,1,1,1,1
+GCF_026965555.1,Nannocystis punicea,13228663,13228663,1,1,1,1
+GCF_033547035.1,Archangium violaceum,13249988,13249988,1,1,1,1
+GCF_037157775.1,Pendulispora brunnea,13401787,13401787,1,1,1,1
+GCF_060026515.1,Aetherobacter fasciculatus,13463229,13463229,1,1,1,1
+GCF_037157805.1,Pendulispora rubella,13605706,13605706,1,1,1,1
+GCF_060026735.1,Jahnella thaxteri,13773628,13773628,1,1,1,1
+GCF_060030665.1,Vitiosangium cumulatum,14132767,14132767,1,1,1,1
+GCF_060026615.1,Phaselicystis flava,14227512,14227512,1,1,1,1
+GCF_060026435.1,Sorangium bulgaricum,14477107,14477107,1,1,1,1
+GCF_905147365.1,Aricia agestis,435265205,17774651,23,29,2,0
+GCF_000002985.6,Caenorhabditis elegans,100272607,17493829,6,6,2,1
+GCF_025839675.1,Candidatus Lokiarchaeum ossiferum,6035313,6035313,1,1,2,1
+GCF_039877785.1,Chaetodon trifascialis,662489023,21327470,24,85,2,0
+GCF_000091205.1,Cyanidioschyzon merolae strain 10D,16546747,859119,20,20,2,0
+GCF_036426115.1,Kwoniella botswanensis,23007246,18234046,3,3,2,1
+GCF_001263205.1,Labilithrix luteola,12191466,12191466,1,1,2,0
+GCF_009914755.1,Homo sapiens (chr20),66210255,66210255,1,1,2,1
