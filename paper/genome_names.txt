@@ -1,0 +1,14 @@
+GCF_025839675.1 C. Lokiarchaeum ossiferum
+GCF_044360475.1 A. minus
+GCF_026965555.1 N. punicea
+GCF_033547035.1 A. violaceum
+GCF_037157775.1 P. brunnea
+GCF_060026515.1 A. fasciculatus
+GCF_037157805.1 P. rubella
+GCF_060026735.1 J. thaxteri
+GCF_060030665.1 V. cumulatum
+GCF_060026615.1 P. flava
+GCF_060026435.1 S. bulgaricum
+GCF_036426115.1 K. botswanensis
+GCF_009914755.1 Homo sapiens (chr20)
+GCF_000002985.6 C. elegans
