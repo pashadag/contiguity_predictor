@@ -115,7 +115,7 @@ def table_rows(names, mu, means):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--out", type=Path, default=TEST_DIR / "suppl_table.csv")
+    parser.add_argument("--out", type=Path, default=TEST_DIR / "suppl_table_s1.csv")
     args = parser.parse_args()
 
     names = read_genome_names(TEST_DIR / "genome_names.txt")
